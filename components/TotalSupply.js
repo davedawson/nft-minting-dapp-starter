@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { hasEthereum, requestAccount } from '../utils/ethereum'
-import Minter from '../src/artifacts/contracts/Minter.sol/Minter.json'
+// import Minter from '../src/artifacts/contracts/Minter.sol/Minter.json'
+import Minter from '../src/artifacts/contracts/ButtsOnChain.sol/ButtsOnChain.json'
 
 export default function TotalSupply() {
     // UI state

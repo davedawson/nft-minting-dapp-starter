@@ -1,8 +1,9 @@
 const hre = require("hardhat");
 
 async function main() {
-  const Minter = await hre.ethers.getContractFactory("Minter");
-  const minter = await Minter.deploy();
+  const [deployer] = await ethers.getSigners();
+  const Minter = await hre.ethers.getContractFactory("ButtsOnChain");
+  const minter = await Minter.deploy(deployer.address);
   await minter.deployed();
   console.log("Minter deployed to:", minter.address);
 }
