@@ -357,7 +357,7 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
                 '"},',
                 '{"trait_type":"Butt crack", "value":"',
                 buttCrackTypes[butt.buttCrackType].name,
-                '"},'
+                '"}'
             )
         );
 
