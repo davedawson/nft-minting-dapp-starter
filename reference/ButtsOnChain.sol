@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 // Added inline below
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 library ButtLibrary {
     /**
@@ -44,7 +44,7 @@ library ButtLibrary {
 /// @notice Provides a function for encoding some bytes in base64
 /// @author Brecht Devos <brecht@loopring.org>
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 library Base64 {
     bytes internal constant TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -118,11 +118,11 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
     uint256 public freeButts = 100;
     uint256 public maxSupply = 3333;
-    uint256 public buttPrice = 0.000001 ether;
+    uint256 public buttPrice = 0.0333 ether;
 
-    // uint256 public constant mintPrice = 10000000000000; // 0.03 ETH.
-    // uint256 public constant maxMint = 10;
-    // uint256 public MAX_TOKENS = 10000;
+    uint256 public constant mintPrice = 30000000000000000; // 0.03 ETH.
+    uint256 public constant maxMint = 10;
+    uint256 public MAX_TOKENS = 10000;
 
     bool public claimActive;
     bool public mintActive;
@@ -133,14 +133,19 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
         uint16 buttType;
     }
 
-    struct Color {
-        string hexCode;
-        string name;
-    }
+    // struct Color {
+    //     string hexCode;
+    //     string name;
+    // }
 
     struct ButtCrackType {
         string name;
         string shape;
+    }
+
+    struct BackgroundColor {
+        string hexCode;
+        string name;
     }
 
     struct ButtType {
@@ -152,7 +157,8 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
     mapping(uint256 => Butt) private tokenIdButt;
 
-    Color[] private backgroundColors;
+    // Color[] private backgroundColors;
+    BackgroundColor[] private backgroundColors;
     
     ButtType[] private buttTypes;
     
@@ -173,7 +179,7 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
         }
     }
 
-    function setBackgroundColors(Color[8] memory colors) private {
+    function setBackgroundColors(BackgroundColor[8] memory colors) private {
         for (uint8 i = 0; i < colors.length; i++) {
             backgroundColors.push(colors[i]);
         }
@@ -200,15 +206,26 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
         
         // Background colors
         setBackgroundColors(
+            // TODO: Maybe remove "Color" and treat this like a normal array?
+            // Otherwise, maybe move all these into vars in arrays like Larva Lads. 
+            // Then use the random number here to pick the array index to use.
             [
-                Color({ hexCode: '#000000', name: 'Green' }),
-                Color({ hexCode: '#d5bada', name: 'Purple' }),
-                Color({ hexCode: '#ecc1db', name: 'Pink' }),
-                Color({ hexCode: '#e3c29e', name: 'Orange' }),
-                Color({ hexCode: '#9cd7d5', name: 'Turquoise' }),
-                Color({ hexCode: '#faf185', name: 'Yellow' }),
-                Color({ hexCode: '#b0d9f4', name: 'Blue' }),
-                Color({ hexCode: '#333333', name: 'Black' })
+                BackgroundColor({ hexCode: '#d5bada', name: 'Purple' }),
+                BackgroundColor({ hexCode: '#000000', name: 'Green' }),
+                BackgroundColor({ hexCode: '#ecc1db', name: 'Pink' }),
+                BackgroundColor({ hexCode: '#e3c29e', name: 'Orange' }),
+                BackgroundColor({ hexCode: '#9cd7d5', name: 'Turquoise' }),
+                BackgroundColor({ hexCode: '#faf185', name: 'Yellow' }),
+                BackgroundColor({ hexCode: '#b0d9f4', name: 'Blue' }),
+                BackgroundColor({ hexCode: '#333333', name: 'Black' })
+                // Color({ hexCode: '#d5bada', name: 'Purple' }),
+                // Color({ hexCode: '#000000', name: 'Green' }),
+                // Color({ hexCode: '#ecc1db', name: 'Pink' }),
+                // Color({ hexCode: '#e3c29e', name: 'Orange' }),
+                // Color({ hexCode: '#9cd7d5', name: 'Turquoise' }),
+                // Color({ hexCode: '#faf185', name: 'Yellow' }),
+                // Color({ hexCode: '#b0d9f4', name: 'Blue' }),
+                // Color({ hexCode: '#333333', name: 'Black' })
             ]
         );
 
@@ -322,7 +339,7 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
     function createTokenIdButt(uint256 tokenId) public view returns (Butt memory) {
         // Temp hidden while on local dev -- Using manual block number instead.
-        uint256 pseudoRandomBase = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), tokenId, blockhash(block.number * block.timestamp))));
+        uint256 pseudoRandomBase = uint256(keccak256(abi.encodePacked(blockhash(block.number * tokenId - 1), tokenId)));
         // uint256 pseudoRandomBase = uint256(keccak256(abi.encodePacked(uint(14252113), tokenId)));
 
         // uint16 _randinput = uint16(uint256(keccak256(abi.encodePacked(blockhash(block.timestamp), blockhash(block.difficulty)))) % 10000);
@@ -333,11 +350,15 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
         return
             Butt({
-                backgroundColor: uint16(uint16(pseudoRandomBase) % 8),
+                // this isnt working!
+                // Something is breaking between here and getTokenIdButtMetadata. 
+                // Using an int there works, but it doesn't work here. 
+                // backgroundColor: uint16(3),
+                backgroundColor: uint16(tokenId),
                 // backgroundColor: weightedRarityGenerator(uint16(uint16(_randinput) % 10000), 0),
                 // backgroundColor: pluck(uint256(tokenId), "COLOR", bgColors),
-                buttType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 1),
-                buttCrackType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 2)
+                buttType: weightedRarityGenerator(uint16(uint16(_randinput) % 10000), 1),
+                buttCrackType: weightedRarityGenerator(uint16(uint16(_randinput) % 10000), 2)
             });
     }
 
@@ -401,12 +422,15 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
                 metadata,
                 '{"trait_type":"Background", "value":"',
                 backgroundColors[butt.backgroundColor].name,
+                Strings.toString(butt.backgroundColor),
                 '"},',
                 '{"trait_type":"Type", "value":"',
                 buttTypes[butt.buttType].name,
+                Strings.toString(butt.buttType),
                 '"},',
                 '{"trait_type":"Butt crack", "value":"',
                 buttCrackTypes[butt.buttCrackType].name,
+                Strings.toString(butt.buttCrackType),
                 '"}'
             )
         );
@@ -463,53 +487,52 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
     }
 
     function claim(uint256 numberOfTokens) external {
-        // console.log("Claim function");
         require(claimActive, 'Claiming not active yet.');
         require(totalSupply() + numberOfTokens <= freeButts, 'Exceeds claim supply.');
 
         internalMint(numberOfTokens);
     }
 
-    function mint(uint256 numberOfTokens) external payable {
-        require(mintActive, 'Mint not active yet.');
-        require(msg.value >= numberOfTokens * buttPrice, 'Wrong ETH value sent.');
+    // function mint(uint256 numberOfTokens) external payable {
+    //     require(mintActive, 'Mint not active yet.');
+    //     require(msg.value >= numberOfTokens * buttPrice, 'Wrong ETH value sent.');
 
-        internalMint(numberOfTokens);
-    }
-
-    // // The main token minting function (recieves Ether).
-    // function mint(uint256 numberOfTokens) public payable {
-    //     // Number of tokens can't be 0.
-    //     require(numberOfTokens != 0, "You need to mint at least 1 token");
-    //     // Check that the number of tokens requested doesn't exceed the max. allowed.
-    //     require(numberOfTokens <= maxMint, "You can only mint 10 tokens at a time");
-    //     // Check that the number of tokens requested wouldn't exceed what's left.
-    //     require(totalSupply().add(numberOfTokens) <= MAX_TOKENS, "Minting would exceed max. supply");
-    //     // Check that the right amount of Ether was sent.
-    //     require(mintPrice.mul(numberOfTokens) <= msg.value, "Not enough Ether sent.");
-
-    //     // For each token requested, mint one.
-    //     for(uint256 i = 0; i < numberOfTokens; i++) {
-    //         uint256 mintIndex = totalSupply();
-    //         if(mintIndex < MAX_TOKENS) {
-    //             /** 
-    //              * Mint token using inherited ERC721 function
-    //              * msg.sender is the wallet address of mint requester
-    //              * mintIndex is used for the tokenId (must be unique)
-    //              */
-    //             _safeMint(msg.sender, mintIndex);
-    //         }
-    //     }
+    //     internalMint(numberOfTokens);
     // }
+
+    // The main token minting function (recieves Ether).
+    function mint(uint256 numberOfTokens) public payable {
+        // Number of tokens can't be 0.
+        require(numberOfTokens != 0, "You need to mint at least 1 token");
+        // Check that the number of tokens requested doesn't exceed the max. allowed.
+        require(numberOfTokens <= maxMint, "You can only mint 10 tokens at a time");
+        // Check that the number of tokens requested wouldn't exceed what's left.
+        require(totalSupply().add(numberOfTokens) <= MAX_TOKENS, "Minting would exceed max. supply");
+        // Check that the right amount of Ether was sent.
+        require(mintPrice.mul(numberOfTokens) <= msg.value, "Not enough Ether sent.");
+
+        // For each token requested, mint one.
+        for(uint256 i = 0; i < numberOfTokens; i++) {
+            uint256 mintIndex = totalSupply();
+            if(mintIndex < MAX_TOKENS) {
+                /** 
+                 * Mint token using inherited ERC721 function
+                 * msg.sender is the wallet address of mint requester
+                 * mintIndex is used for the tokenId (must be unique)
+                 */
+                _safeMint(msg.sender, mintIndex);
+            }
+        }
+    }
 
     function setFreeButts(uint256 newFreeButts) external onlyOwner {
         require(newFreeButts <= maxSupply, 'Would increase max supply.');
         freeButts = newFreeButts;
     }
 
-    // function setButtPrice(uint256 newButtPrice) external onlyOwner {
-    //     buttPrice = newButtPrice;
-    // }
+    function setButtPrice(uint256 newButtPrice) external onlyOwner {
+        buttPrice = newButtPrice;
+    }
 
     function toggleClaim() external onlyOwner {
         claimActive = !claimActive;

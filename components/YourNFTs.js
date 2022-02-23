@@ -13,7 +13,12 @@ export default function YourNFTs() {
 
     const [nftsMetaData, setNftsMetaData] = useState([])
 
+    const [visibleNft, setVisibleNft] = useState([])
+
     let collection = [];
+    let tokenURIIndividual = [];
+
+
 
     const ethersConfig = {
         provider: getDefaultProvider("homestead"),
@@ -53,7 +58,10 @@ export default function YourNFTs() {
           }
     }
 
+    
+
     async function showAllMintedNFTs() {
+        
         if(! hasEthereum()) return
 
         try {
@@ -62,6 +70,13 @@ export default function YourNFTs() {
             const signer = provider.getSigner()
             const contract = new ethers.Contract(process.env.NEXT_PUBLIC_MINTER_ADDRESS, Minter.abi, provider)
             const mintedCount = await contract.totalSupply();
+
+            const { chainId } = await provider.getNetwork()
+            console.log('chainId:', chainId) 
+
+            const block = await provider.getBlockNumber();
+            console.log('block #', block);
+
             // const count = mintedCount.toString();
             const loopCount = mintedCount.toNumber();
             console.log('count: ', mintedCount, loopCount);
@@ -70,10 +85,20 @@ export default function YourNFTs() {
             // For each token, get the tokenId
             const tokenURIs = []
 
-            for(let i = 0; i < loopCount; i++) {
+            // tokenURIIndividual = await contract.tokenURI(3);
+            // const cleanToken = tokenURIIndividual.substring(29);
+            // const jsonToken = Buffer.from(cleanToken, "base64").toString();
+            // const resultToken = JSON.parse(jsonToken);
+            // console.log(tokenURIIndividual, resultToken);
+            // const i = 2;
+            // let tokenURI;
+            // tokenURI = await contract.tokenURI(i);
+            // console.log(tokenURI);
+            for(let i = 1; i < mintedCount; i++) {
+                console.log(i);
                 const tokenURI = await contract.tokenURI(i);
                 
-                // console.log(i, tokenURI);
+                // console.log(i, tokenURI);    
                 const clean = tokenURI.substring(29);
                 const json = Buffer.from(clean, "base64").toString();
                 const result = JSON.parse(json);
@@ -82,8 +107,9 @@ export default function YourNFTs() {
                 tokenURIs.push(result);
             }
   
-            setNftsMetaData(tokenURIs)
-            console.log(collection);
+            setNftsMetaData(tokenURIs);
+            setVisibleNft(resultToken);
+            console.log(collection, tokenURIIndividual);
           } catch(error) {
               console.log(error)
           }
@@ -91,25 +117,26 @@ export default function YourNFTs() {
     }
 
     
+
+    
     // if(nfts.length < 1) return null;
 
     return (
         <>
             <h2 className="text-2xl font-semibold mb-2">Your NFTs</h2>
+            {/* <ul className="grid grid-cols-4 gap-6"> */}
             <ul className="grid grid-cols-4 gap-6">
                 {/* { nfts.map( (nft) => <div key={nft} className="bg-gray-100 p-4 h-24 lg:h-28 flex justify-center items-center text-lg">{nft}</div>)} */}
-                collection: {collection}
-                <div>
                 { nftsMetaData.map( (nft, i) => {
                     console.log(nft, nft.image);
                     return (
-                    <li key={i} className="bg-gray-100 p-4 h-24 lg:h-28 flex justify-center items-center text-lg">
-                        {nft.name} |
+                    // <li key={i} className="bg-gray-100 p-4 h-24 lg:h-28 flex justify-center items-center text-lg">
+                    <li key={i} className="">
+                        {/* {nft.name} | */}
                         <img src={nft.image} alt="" />
                     </li>    
                     )
-                })}   
-                </div>             
+                })}              
             </ul>
         </>
     )

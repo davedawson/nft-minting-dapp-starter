@@ -1,0 +1,31 @@
+config
+.help
+config
+.help
+await token.name()
+await token.name
+token.name
+await token.tokenURI(1)
+await token.tokenURI("2")
+await token.tokenURI()
+await token.tokenURI(2)
+await token.claim(10)
+await token.tokenURI(2)
+await token.tokenURI
+await token.tokenURI("1");
+await token.tokenURI(1)
+const token = await Token.attach("0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f")
+const Token = await ethers.getContractFactory("ButtsOnChain")
+await token.claim(1)
+await token.claim()
+const token = await Token.attach("0x610178dA211FEF7D417bC0e6FeD39F05609AD788")
+const Token = await ethers.getContractFactory("ButtsOnChain")
+await token.tokenURI(1)
+await token.ownerOf(1)
+token.ownerOf(1)
+token.owner
+token.owner(1)
+token
+const token = await Token.attach("0x5fbdb2315678afecb367f032d93f642f64180aa3")
+const token = await Token.attach("0x5FbDB2315678afecb367f032d93F642f64180aa3")
+const Token = await ethers.getContractFactory("ButtsOnChain")
