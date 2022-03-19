@@ -108,7 +108,7 @@ export default function YourNFTs() {
             }
   
             setNftsMetaData(tokenURIs);
-            setVisibleNft(resultToken);
+            // setVisibleNft(resultToken);
             console.log(collection, tokenURIIndividual);
           } catch(error) {
               console.log(error)

@@ -124,13 +124,15 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
     // uint256 public constant maxMint = 10;
     // uint256 public MAX_TOKENS = 10000;
 
+    // TODO: Change to false for production
     bool public claimActive;
     bool public mintActive;
     
     struct Butt {
         uint16 backgroundColor;
-        uint16 buttCrackType;
+        uint16 buttTop;
         uint16 buttType;
+        uint16 buttCrackType;
     }
 
     struct Color {
@@ -139,6 +141,11 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
     }
 
     struct ButtCrackType {
+        string name;
+        string shape;
+    }
+
+    struct ButtTop {
         string name;
         string shape;
     }
@@ -155,6 +162,8 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
     Color[] private backgroundColors;
     
     ButtType[] private buttTypes;
+
+    ButtTop[] private buttTops;
     
     ButtCrackType[] private buttCrackTypes;
 
@@ -167,20 +176,27 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
     string[] private bgColors = ["#1A3201", "#FFFB0A", "#B5FB04", "#99FC06", "#7ECE06", "#49A117", "#2AA508", "#319E0C", "#366C00", "#072C02", "#234606"];
 
-    function setButtCrackTypes(ButtCrackType[3] memory cracks) private {
-        for (uint8 i = 0; i < cracks.length; i++) {
-            buttCrackTypes.push(cracks[i]);
-        }
-    }
-
     function setBackgroundColors(Color[8] memory colors) private {
         for (uint8 i = 0; i < colors.length; i++) {
             backgroundColors.push(colors[i]);
         }
     }
+
     function setButtTypes(ButtType[4] memory types) private {
         for (uint8 i = 0; i < types.length; i++) {
             buttTypes.push(types[i]);
+        }
+    }
+
+    function setButtTops(ButtTop[4] memory tops) private {
+        for (uint8 i = 0; i < tops.length; i++) {
+            buttTops.push(tops[i]);
+        }
+    }
+
+    function setButtCrackTypes(ButtCrackType[3] memory cracks) private {
+        for (uint8 i = 0; i < cracks.length; i++) {
+            buttCrackTypes.push(cracks[i]);
         }
     }
 
@@ -190,10 +206,14 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
         // Background colors rarity
         traitWeights[0] = [9000, 8000, 5000, 1, 2, 3, 4, 5];
+        
         // Butt type rarity
         traitWeights[1] = [9000, 5000, 1000, 100];
+
         // Crack type rarity
         traitWeights[2] = [9000, 5000, 842];
+
+        traitWeights[3] = [9000, 5000, 842];
 
         // OpenSea proxy contract
         proxyRegistryAddress = _proxyRegistryAddress;
@@ -212,37 +232,41 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
             ]
         );
 
-        // // Regular
-        // setButtCrackType(
-        //     0,
-        //     "<g fill='#FFFFFF'><path d='M0 0H1V1H0V0zM0 1H1V2.00006L2 2.00006V4.00006H1L1 3.00006H0V1z'/></g>"
-        // );
-
-        // // Long
-        // setButtCrackType(
-        //     1,
-        //     "<g fill='#000000'><path d='M0 0H1V1H0V0zM0 1H1V2.00006L2 2.00006V4.00006H1L1 3.00006H0V1z'/></g>"
-        // );
-
-        // // Tall
-        // setButtCrackType(
-        //     2,
-        //     "<g fill='#DB0D0D'><path fill='black' fill-rule='evenodd' d='M2 0H0.999998V1H2V0ZM2 1.00006H0.999998V2.00006L-1.66893e-06 2.00006V3.00006V4.00006H1L0.999998 3.00006H2V2.00006V1.00006Z'/></g>"
-        // );
-
         setButtCrackTypes(
             [
                 ButtCrackType({
                     name: "Normal",
-                    shape: "<g fill='#FFFFFF'><path d='M0 0H1V1H0V0zM0 1H1V2.00006L2 2.00006V4.00006H1L1 3.00006H0V1z'/></g>"
+                    shape: '<defs><polygon id="crackShape" class="crack" points="19,21 19,20 19,19 18,19 18,20 18,22 19,22 19,23 20,23 20,21"/></defs><use x="18" y="17" xlink:href="#crackShape"/>'
                 }),
                 ButtCrackType({
                     name: "Right",
-                    shape: '<path fill="black" fill-rule="evenodd" d="M20 19H19V20H20V19ZM20 20.0001H19V21.0001L18 21.0001V22.0001V23.0001H19L19 22.0001H20V21.0001V20.0001Z" clip-rule="evenodd"/>'
+                    shape: '<defs><polygon id="crackShape" class="crack" points="19,19 19,20 19,20.2 19,21 18,21 18,22 18,23 19,23 19,22 20,22 20,21 20,20.2 20,20 20,19 "/></defs><use x="18" y="17" xlink:href="#crackShape"/>'
                 }),
                 ButtCrackType({
                     name: "Tall",
-                    shape: '<path d="M18 17H19V20H18V17zM19 20L20 20V21H19L19 20zM19 21H20V23.0001H19V21z"/>'
+                    shape: '<rect class="crack" x="18" y="17" width="1" height="3"/><rect class="crack" x="19" y="20" width="1" height="3"/>'
+                })
+            ]
+        );
+
+        // Butt Top Types
+        setButtTops(
+            [
+                ButtTop({
+                    name: 'Normal',
+                    shape: '<polygon class="fur" points="20,9 19,9 19,8 18,8 18,7 18,6 17,6 17,5 17,4 16,4 16,3 15,3 15,4 15,4 15,3 15,3 15,2 14,2 13,212,2 12,3 11,3 10,3 10,2 9,2 9,1 8,1 7,1 7,2 6,2 6,3 5,3 5,4 4,4 4,5 3,5 3,6 3,7 2,7 2,8 1,8 1,9 1,10 1,11 2,11 3,11 4,11 5,116,11 7,11 8,11 9,11 10,11 11,11 12,11 13,11 14,11 15,11 16,11 17,11 18,11 19,11 20,11 21,11 21,10 21,9"/><g><rect x="4" y="3" class="outline" width="1" height="1"/><rect x="2" y="5" class="outline" width="1" height="2"/><polygon class="outline" points="6,2 5,2 5,3 6,3 7,3 7,2 7,1 6,1"/><rect y="8" class="outline" width="1" height="3"/><rect x="1" y="7" class="outline" width="1" height="1"/><polygon class="outline" points="10,3 10,4 11,4 11,3 12,3 12,2 10,2"/><polygon class="outline" points="8,0 7,0 7,1 8,1 9,1 9,0"/><rect x="3" y="4" class="outline" width="1" height="1"/><polygon class="outline" points="20,8 19,8 19,9 20,9 21,9 21,8"/><rect x="18" y="6" class="outline" width="1" height="2"/><rect x="21" y="9" class="outline" width="1" height="2"/><polygon class="outline" points="18,4 17,4 17,5 16,5 16,6 17,6 18,6 18,5"/><rect x="16" y="3" class="outline" width="1" height="1"/><rect x="12" y="1" class="outline" width="3" height="1"/><rect x="9" y="1" class="outline" width="1" height="1"/><rect x="15" y="2" class="outline" width="1" height="1"/><rect x="15" y="6" class="outline" width="1" height="1"/></g><g><polygon class="highlight" points="5,5 5,6 6,6 7,6 7,5 6,5"/><polygon class="highlight" points="14,3 13,3 13,4 14,4 15,4 15,3"/></g>'
+                }),
+                ButtTop({
+                    name: 'AltTKTK',
+                    shape: ''
+                }),
+                ButtTop({
+                    name: 'AltTKTK2',
+                    shape: ''
+                }),
+                ButtTop({
+                    name: 'AltTKTK3',
+                    shape: ''
                 })
             ]
         );
@@ -281,7 +305,6 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
     // function totalSupply() public view returns (uint256) {
     //     return _nextTokenId.current() - 1;
     // }
-    
 
     function weightedRarityGenerator(uint16 pseudoRandomNumber, uint8 trait) private view returns (uint16) {
         uint16 lowerBound = 0;
@@ -300,44 +323,15 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
         revert();
     }
 
-    
-    function random(string memory input) internal pure returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(input)));
-    }
-    
-
-    function pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal pure returns (string memory) {
-        uint256 rand = random(string(abi.encodePacked(keyPrefix, Strings.toString(tokenId))));
-        string memory output = sourceArray[rand % sourceArray.length];
-        uint256 randResult = rand % 10000;
-        
-        // if (randResult > 14) {
-        //     // output = string(abi.encodePacked(output, " ", suffixes[rand % suffixes.length]));
-        //     console.log(randResult);
-        // } else {
-        //     output = string(abi.encodePacked(output));
-        // }
-        return output;
-    }
-
     function createTokenIdButt(uint256 tokenId) public view returns (Butt memory) {
-        // Temp hidden while on local dev -- Using manual block number instead.
         uint256 pseudoRandomBase = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), tokenId, blockhash(block.number * block.timestamp))));
-        // uint256 pseudoRandomBase = uint256(keccak256(abi.encodePacked(uint(14252113), tokenId)));
-
-        // uint16 _randinput = uint16(uint256(keccak256(abi.encodePacked(blockhash(block.timestamp), blockhash(block.difficulty)))) % 10000);
-        // uint16 _randinput = uint16(uint256(keccak256(abi.encodePacked(uint(14252113)))) % 10000);
-        uint16 _randinput = uint16(uint256(keccak256(abi.encodePacked(uint(14252113)))));
-
-        console.log(uint16(uint16(pseudoRandomBase) % 8));
-
+    
         return
             Butt({
                 backgroundColor: uint16(uint16(pseudoRandomBase) % 8),
-                // backgroundColor: weightedRarityGenerator(uint16(uint16(_randinput) % 10000), 0),
-                // backgroundColor: pluck(uint256(tokenId), "COLOR", bgColors),
-                buttType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 1),
-                buttCrackType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 2)
+                buttTop: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 1),
+                buttType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 2),
+                buttCrackType: weightedRarityGenerator(uint16(uint16(pseudoRandomBase) % 10000), 3)
             });
     }
 
@@ -358,14 +352,25 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
             abi.encodePacked(buttTypes[butt.buttType].shape)
         );
 
-        // console.log(buttType);
-
         return buttType;
     }
 
+    function getButtTop(Butt memory butt) private view returns (string memory buttTop) {
+        buttTop = string(
+            abi.encodePacked(buttTops[butt.buttTop].shape)
+        );
+
+        return buttTop;
+    }
+
     function getButtCrack(Butt memory butt) private view returns (string memory buttCrack) {
-        buttCrack = string(
-            abi.encodePacked(buttCrackTypes[butt.buttCrackType].shape)
+        buttCrack = string( 
+            // abi.encodePacked(buttCrackTypes[butt.buttCrackType].shape)
+            abi.encodePacked(
+                '<svg id="butt-type" transform="translate(8,15)">',
+                    buttCrackTypes[butt.buttCrackType].shape,
+                '</svg>'
+            )
         );
         
         // console.log(buttCrack);
@@ -378,15 +383,16 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
         svg = string(
             abi.encodePacked(
                 getButtBase(butt),
-                getButtCrack(butt),
-                getButtType(butt)
+                getButtTop(butt),
+                getButtType(butt),
+                getButtCrack(butt)
             )
         );
 
         return
             string(
                 abi.encodePacked(
-                    "<svg id='butt' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 40 40'>",
+                    '<svg id="butt" preserveAspectRatio="xMinYMin meet" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
                         '<defs><style>.fur{fill:#7d78a5;fill-rule:evenodd;}.outline{fill:#100c0a;}.highlight{fill:#9995B8;}</style></defs>',
                         '<g><rect x="4" y="3" class="outline" width="1" height="1"/><rect x="2" y="5" class="outline" width="1" height="2"/><polygon class="outline" points="6,2 5,2 5,3 6,3 7,3 7,2 7,1 6,1"/><rect x="0" y="8" class="outline" width="1" height="3"/><rect x="1" y="7" class="outline" width="1" height="1"/><polygon class="outline" points="10,3 10,4 11,4 11,3 12,3 12,2 10,2"/><polygon class="outline" points="8,0 7,0 7,1 8,1 9,1 9,0"/><rect x="3" y="4" class="outline" width="1" height="1"/><polygon class="outline" points="20,8 19,8 19,9 20,9 21,9 21,8"/><rect x="18" y="6" class="outline" width="1" height="2"/><rect x="21" y="9" class="outline" width="1" height="2"/><polygon class="outline" points="18,4 17,4 17,5 17,6 18,6 18,5"/><rect x="16" y="3" class="outline" width="1" height="1"/><rect x="12" y="1" class="outline" width="3" height="1"/><rect x="9" y="1" class="outline" width="1" height="1"/><rect x="15" y="2" class="outline" width="1" height="1"/><rect x="16" y="5" class="outline" width="1" height="1"/><rect x="15" y="6" class="outline" width="1" height="1"/></g><polygon class="fur" points="20,9 19,9 19,8 18,8 18,7 18,6 17,6 17,5 17,4 16,4 16,3 15,3 15,4 15,4 15,3 15,3 15,2 14,2 13,212,2 12,3 11,3 10,3 10,2 9,2 9,1 8,1 7,1 7,2 6,2 6,3 5,3 5,4 4,4 4,5 3,5 3,6 3,7 2,7 2,8 1,8 1,9 1,10 1,11 2,11 3,11 4,11 5,116,11 7,11 8,11 9,11 10,11 11,11 12,11 13,11 14,11 15,11 16,11 17,11 18,11 19,11 20,11 21,11 21,10 21,9"/><g><polygon class="highlight" points="5,5 5,6 6,6 7,6 7,5 6,5"/><polygon class="highlight" points="14,3 13,3 13,4 14,4 15,4 15,3"/></g>',
                         svg,
@@ -443,7 +449,7 @@ contract ButtsOnChain is ERC721Enumerable, Ownable {
 
     function internalMint(uint256 numberOfTokens) private {
         require(numberOfTokens > 0, 'Quantity must be greater than 0.');
-        require(numberOfTokens < 11, 'Exceeds max per mint.');
+        require(numberOfTokens < 3333, 'Exceeds max per mint.');
         require(totalSupply() + numberOfTokens <= maxSupply, 'Exceeds max supply.');
 
         for (uint256 i = 0; i < numberOfTokens; i++) {
